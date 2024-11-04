@@ -1,3 +1,32 @@
+ // 이벤트 기록 함수
+ function logEvent(eventType) {
+    const userId = localStorage.getItem('studentId'); // 로그인한 사용자 ID를 로컬 스토리지에서 가져옵니다.
+
+    const data = {
+        userId: userId,
+        eventType: eventType,
+        comment: `${userId} ${eventType}` // 코멘트 형식
+    };
+
+    fetch("https://script.google.com/macros/s/AKfycbyCrewjcnY3AbPE5vhv5_flwxlQMucC49Nu9GRxH1yQWQS62BIAQJ09JJmQULVIJ9-Bfw/exec", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data),
+        mode: "no-cors"
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log("로그 기록 성공");
+        } else {
+            console.error("로그 기록 실패");
+        }
+    })
+    .catch(error => {
+        console.error("네트워크 오류:", error);
+     });
+}
 let balance = 100000; // 초기 자본 설정
 let turnCount = 0; // 현재 턴 카운트 초기화
 let showWeather = false; // 내일의 날씨 표시 여부
@@ -148,11 +177,13 @@ document.getElementById('weather').style.display = 'none';
 function checkEndGame() {
     if (balance >= 500000) {
         alert("축하합니다! 자본이 500,000₩에 도달했습니다. 게임이 초기화됩니다.");
+        logEvent(`${turnCount} 일차 게임 클리어`);
         resetGame();
         return; // 게임이 종료되었으므로 이후 로직을 실행하지 않음
     } 
     if (turnCount >= 31) {
         alert("31일차에 도달했습니다. 게임이 초기화됩니다.");
+        logEvent('게임 초기화');
         resetGame();
     }
 }
@@ -232,10 +263,10 @@ function updateUI() {
                     <h2>${coin.name}</h2>
                     <p>가격: ${coin.price.toLocaleString()}₩</p>
                     <p>보유량: ${coin.owned}</p>
-                    <button onclick="buyCoin(${index})">구매</button>
-                    <button onclick="sellCoin(${index})">판매</button>
-                    <button onclick="buyAll(${index})">전량구매</button>
-                    <button onclick="sellAll(${index})">전량판매</button>
+                    <button onclick="buyCoin(${index}); logEvent(' ${coin.name}구매 ');">구매</button>
+                    <button onclick="sellCoin(${index}); logEvent(' ${coin.name}판매 ');">판매</button>
+                    <button onclick="buyAll(${index}); logEvent(' ${coin.name}전량구매 ');">전량구매</button>
+                    <button onclick="sellAll(${index}); logEvent(' ${coin.name}전량판매 ');">전량판매</button>
                 </div>
             </div>
         `;
